@@ -112,7 +112,9 @@ export default {
         headers: {
           ...headers,
           'Content-Type': contentType || 'image/jpeg',
-          'Cache-Control': 'no-cache, no-store, must-revalidate', // 禁用缓存以确保每次请求都是新的
+          'Cache-Control': 'public, max-age=86400', // 缓存24小时
+          'ETag': `"${index}"`, // 添加 ETag 用于缓存验证
+          'Vary': 'Origin, Accept', // 添加 Vary 头部
           'Content-Disposition': 'inline',
         },
       });
