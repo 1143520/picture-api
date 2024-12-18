@@ -24,8 +24,31 @@ const IMAGES = [
 // 模式控制：1 = 单张随机图片，2 = 自动切换模式
 const MODE = 2;
 
-// 上一次显示的图片索引（避免重复）
-let lastIndex = -1;
+// 记录最近显示的5张图片的索引
+const recentIndices = [];
+const UNIQUE_COUNT = 5; // 保持不重复的图片数量
+
+// 获取一个不在最近显示列表中的随机索引
+function getUniqueRandomIndex() {
+  let availableIndices = Array.from({ length: IMAGES.length }, (_, i) => i)
+    .filter(i => !recentIndices.includes(i));
+  
+  // 如果所有图片都在最近列表中，清空列表重新开始
+  if (availableIndices.length === 0) {
+    recentIndices.length = 0;
+    availableIndices = Array.from({ length: IMAGES.length }, (_, i) => i);
+  }
+  
+  const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+  recentIndices.push(randomIndex);
+  
+  // 保持最近列表长度为 UNIQUE_COUNT
+  if (recentIndices.length > UNIQUE_COUNT) {
+    recentIndices.shift();
+  }
+  
+  return randomIndex;
+}
 
 export default {
   async fetch(request, env, ctx) {
@@ -46,13 +69,8 @@ export default {
     }
 
     try {
-      // 避免重复的随机选择
-      let randomIndex;
-      do {
-        randomIndex = Math.floor(Math.random() * IMAGES.length);
-      } while (randomIndex === lastIndex);
-      lastIndex = randomIndex;
-
+      // 获取不重复的随机图片索引
+      const randomIndex = getUniqueRandomIndex();
       const imageUrl = IMAGES[randomIndex];
 
       // 如果是获取图片的请求，直接返回图片
@@ -76,7 +94,7 @@ export default {
           headers: {
             ...headers,
             'Content-Type': contentType || 'image/jpeg',
-            'Cache-Control': 'no-cache',
+            'Cache-Control': 'public, max-age=31536000', // 缓存一年
             'Content-Disposition': 'inline',
           },
         });
@@ -129,6 +147,7 @@ export default {
                 height: 100%;
                 background: #000;
                 overflow: hidden;
+                position: fixed;
               }
               body {
                 display: flex;
@@ -136,105 +155,200 @@ export default {
                 align-items: center;
               }
               .image-container {
-                position: relative;
-                width: 100%;
-                height: 100%;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                background: #000;
               }
               .image {
                 position: absolute;
-                max-width: 100%;
-                max-height: 100%;
+                max-width: 100vw;
+                max-height: 100vh;
                 width: auto;
                 height: auto;
                 opacity: 0;
-                transition: opacity 1s ease-in-out;
-                object-fit: scale-down;
-                transform: translateZ(0);
-                -webkit-transform: translateZ(0);
-                will-change: opacity;
+                transition: all 1s ease-in-out;
+                object-fit: contain;
+                pointer-events: none;
+                transform: translateZ(0) scale(0.98);
+                -webkit-transform: translateZ(0) scale(0.98);
+                will-change: opacity, transform;
               }
-              .visible {
+              .image.visible {
                 opacity: 1;
+                transform: translateZ(0) scale(1);
+                -webkit-transform: translateZ(0) scale(1);
               }
               @media (orientation: portrait) {
                 .image {
                   width: 100%;
                   height: auto;
+                  max-height: 100vh;
                 }
               }
               @media (orientation: landscape) {
                 .image {
                   width: auto;
                   height: 100%;
+                  max-width: 100vw;
                 }
               }
             </style>
           </head>
           <body>
             <div class="image-container">
-              <img class="image visible" src="${imageUrl}" alt="Random Picture" style="opacity: 1;">
+              <img class="image visible" src="${imageUrl}" alt="Random Picture">
             </div>
             <script>
+              let isLoading = false;
               let nextImage = null;
+              let intervalId = null;
+              let imageCache = new Map(); // 添加图片缓存
               
               // 预加载下一张图片
               async function preloadNextImage() {
-                const baseUrl = window.location.href.split('?')[0];
-                const timestamp = new Date().getTime();
-                const url = baseUrl + '?getImage=true&t=' + timestamp;
-                
-                const img = new Image();
-                img.src = url;
-                img.className = 'image';
-                
-                await new Promise((resolve, reject) => {
-                  img.onload = resolve;
-                  img.onerror = reject;
-                });
-                
-                return img;
+                try {
+                  const baseUrl = window.location.href.split('?')[0];
+                  const timestamp = new Date().getTime();
+                  const url = baseUrl + '?getImage=true&t=' + timestamp;
+                  
+                  // 检查缓存
+                  if (imageCache.has(url)) {
+                    return imageCache.get(url).cloneNode();
+                  }
+                  
+                  const img = new Image();
+                  const loadPromise = new Promise((resolve, reject) => {
+                    img.onload = () => {
+                      img.className = 'image';
+                      // 缓存图片
+                      imageCache.set(url, img.cloneNode());
+                      resolve(img);
+                    };
+                    img.onerror = reject;
+                  });
+                  
+                  img.src = url;
+                  return await loadPromise;
+                } catch (error) {
+                  console.error('Preload failed:', error);
+                  return null;
+                }
+              }
+              
+              // 限制缓存大小
+              function limitCacheSize() {
+                const maxSize = 19; // 最多缓存19张图片
+                if (imageCache.size > maxSize) {
+                  const firstKey = imageCache.keys().next().value;
+                  imageCache.delete(firstKey);
+                }
               }
               
               async function loadNewImage() {
+                if (isLoading) return;
+                isLoading = true;
+                
                 try {
                   const container = document.querySelector('.image-container');
                   const oldImg = container.querySelector('.image');
                   
-                  // 如果有预加载的图片就使用它，否则等待加载新图片
-                  const newImg = nextImage || await preloadNextImage();
+                  let newImg = nextImage;
                   nextImage = null;
                   
-                  // 开始预加载下一张图片
+                  if (!newImg) {
+                    newImg = await preloadNextImage();
+                    if (!newImg) {
+                      isLoading = false;
+                      return;
+                    }
+                  }
+                  
+                  // 确保新图片已经完全加载
+                  if (!newImg.complete) {
+                    await new Promise(resolve => {
+                      newImg.onload = resolve;
+                    });
+                  }
+                  
+                  // 添加新图片但保持不可见
+                  container.appendChild(newImg);
+                  
+                  // 等待一帧以确保浏览器已经处理了图片
+                  await new Promise(resolve => requestAnimationFrame(resolve));
+                  
+                  // 开始淡入淡出动画
+                  setTimeout(() => {
+                    newImg.classList.add('visible');
+                    oldImg.classList.remove('visible');
+                    
+                    // 等待动画完成后移除旧图片
+                    setTimeout(() => {
+                      oldImg.remove();
+                      // 开始预加载下一张图片
+                      preloadNextImage().then(img => {
+                        nextImage = img;
+                        limitCacheSize(); // 检查并限制缓存大小
+                      }).catch(console.error);
+                    }, 1000);
+                  }, 50);
+                } catch (error) {
+                  console.error('Failed to load image:', error);
+                } finally {
+                  isLoading = false;
+                }
+              }
+
+              // 开始自动切换
+              function startAutoChange() {
+                if (!intervalId) {
+                  // 立即开始预加载下一张图片
                   preloadNextImage().then(img => {
                     nextImage = img;
                   }).catch(console.error);
                   
-                  container.appendChild(newImg);
-                  requestAnimationFrame(() => {
-                    newImg.classList.add('visible');
-                    oldImg.classList.remove('visible');
-                    setTimeout(() => oldImg.remove(), 1000);
-                  });
-                } catch (error) {
-                  console.error('Failed to load image:', error);
+                  intervalId = setInterval(loadNewImage, 5000);
                 }
               }
 
-              // 预加载下一张图片
-              preloadNextImage().then(img => {
-                nextImage = img;
-              }).catch(console.error);
+              // 停止自动切换
+              function stopAutoChange() {
+                if (intervalId) {
+                  clearInterval(intervalId);
+                  intervalId = null;
+                }
+              }
 
-              // 开始自动切换
-              setInterval(loadNewImage, 5000);
+              // 处理页面可见性变化
+              function handleVisibilityChange() {
+                if (document.hidden) {
+                  stopAutoChange();
+                } else {
+                  startAutoChange();
+                }
+              }
 
-              // 禁用双击缩放
-              document.addEventListener('dblclick', (e) => {
-                e.preventDefault();
-              });
+              // 监听页面可见性变化
+              document.addEventListener('visibilitychange', handleVisibilityChange);
+
+              // 监听窗口焦点变化
+              window.addEventListener('blur', stopAutoChange);
+              window.addEventListener('focus', startAutoChange);
+
+              // 初始启动自动切换
+              if (!document.hidden) {
+                startAutoChange();
+              }
+
+              // 禁用所有触摸事件
+              document.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
+              document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+              document.addEventListener('touchend', (e) => e.preventDefault(), { passive: false });
             </script>
           </body>
           </html>
@@ -242,6 +356,7 @@ export default {
           headers: {
             ...headers,
             'Content-Type': 'text/html',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
           },
         });
       }
