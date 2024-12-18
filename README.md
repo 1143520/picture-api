@@ -119,6 +119,6 @@ document.addEventListener('themeChange', updateBackgroundImage);
 
 ### 缓存说明
 
-API 默认启用了24小时的缓存，如果需要强制刷新图片，可以：
+API 默认启用了24小时的缓存（max-age=86400），如果需要强制刷新图片，可以：
 1. 在URL后添加时间戳参数（如示例代码中所示）
 2. 手动使用 Ctrl+F5 强制刷新
