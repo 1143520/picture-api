@@ -1,0 +1,6 @@
+name = "random-picture-api"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+# 在这里可以添加环境变量 
