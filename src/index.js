@@ -8,25 +8,36 @@ const IMAGES = [
   '06.jpg',
   '07.jpg',
   '08.jpg',
-  '09.png',
-  '10.png',
-  '11.png',
-  '12.png',
-  '13.png',
-  '14.png',
-  '15.png',
-  '16.png',
+  '09.jpg',
+  '10.jpg',
+  '11.jpg',
+  '12.jpg',
+  '13.jpg',
+  '14.jpg',
+  '15.jpg',
+  '16.jpg',
   '17.png',
   '18.png',
-  '19.jpeg'
+  '19.png',
+  '20.png',
+  '21.png',
+  '22.png',
+  '23.png',
+  '24.png',
+  '25.png',
+  '26.png',
+  '27.png',
+  '28.png',
+  '29.png',
+  '30.jpeg'
 ].map(filename => `https://raw.githubusercontent.com/1143520/picture-api/main/public/${filename}`);
 
 // 模式控制：1 = 顺序循环，2 = 不重复随机图片
 const MODE = 2;
 
-// 记录最近显示的5张图片的索引
+// 记录最近显示的图片的索引
 const recentIndices = [];
-const UNIQUE_COUNT = 5; // 保持不重复的图片数量
+const UNIQUE_COUNT = 8; // 调整为更合适的数量（约1/4的总图片数）
 
 // 模式1的当前索引
 let currentIndex = 0;
