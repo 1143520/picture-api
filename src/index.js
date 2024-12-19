@@ -78,6 +78,7 @@ export default {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET',
       'Access-Control-Allow-Headers': 'Content-Type',
+      'Link': '</favicon.ico>; rel="icon"; size="0"'
     };
 
     // 处理预检请求
