@@ -116,6 +116,9 @@ export default {
           'ETag': `"${index}"`, // 添加 ETag 用于缓存验证
           'Vary': 'Origin, Accept', // 添加 Vary 头部
           'Content-Disposition': 'inline',
+          'Content-Security-Policy': "img-src 'self' https: data:;",
+          'X-Content-Type-Options': 'nosniff',
+          'Viewport-Fit': 'cover'
         },
       });
     } catch (error) {
