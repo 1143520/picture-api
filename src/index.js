@@ -1,36 +1,16 @@
-// 配置你的图片 URL 列表
-const IMAGES = [
-  '01.jpg',
-  '02.jpg',
-  '03.jpg',
-  '04.jpg',
-  '05.jpg',
-  '06.jpg',
-  '07.jpg',
-  '08.jpg',
-  '09.jpg',
-  '10.jpg',
-  '11.jpg',
-  '12.jpg',
-  '13.jpg',
-  '14.jpg',
-  '15.jpg',
-  '16.jpg',
-  '17.png',
-  '18.png',
-  '19.png',
-  '20.png',
-  '21.png',
-  '22.png',
-  '23.png',
-  '24.png',
-  '25.png',
-  '26.png',
-  '27.png',
-  '28.png',
-  '29.png',
-  '30.jpeg'
-].map(filename => `https://raw.githubusercontent.com/1143520/picture-api/main/public/${filename}`);
+// 从环境变量获取图片URL列表
+function getImagesFromEnv(env) {
+  try {
+    // 将环境变量按换行符分割，并过滤掉空行
+    return (env.IMAGES || '')
+      .split('\n')
+      .map(url => url.trim())
+      .filter(url => url.length > 0);
+  } catch (error) {
+    console.error('Failed to parse IMAGES environment variable:', error);
+    return [];
+  }
+}
 
 // 模式控制：1 = 顺序循环，2 = 不重复随机图片
 const MODE = 2;
@@ -73,6 +53,22 @@ function getUniqueRandomIndex() {
 
 export default {
   async fetch(request, env, ctx) {
+    // 从环境变量获取图片列表
+    const IMAGES = getImagesFromEnv(env);
+    
+    // 如果没有配置图片，返回错误
+    if (IMAGES.length === 0) {
+      return new Response(JSON.stringify({
+        error: 'No images configured'
+      }), {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
+    }
+
     // 允许跨域访问
     const headers = {
       'Access-Control-Allow-Origin': '*',
