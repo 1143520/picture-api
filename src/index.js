@@ -1,16 +1,36 @@
-// 从环境变量获取图片URL列表
-function getImagesFromEnv(env) {
-  try {
-    // 将环境变量按换行符分割，并过滤掉空行
-    return (env.IMAGES || '')
-      .split('\n')
-      .map(url => url.trim())
-      .filter(url => url.length > 0);
-  } catch (error) {
-    console.error('Failed to parse IMAGES environment variable:', error);
-    return [];
-  }
-}
+// 直接配置图片URL列表
+const IMAGES_LIST = [
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/01.jpg',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/02.jpg',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/03.jpg',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/04.jpg',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/05.jpg',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/06.jpg',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/07.jpg',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/08.jpg',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/09.jpg',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/10.jpg',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/11.jpg',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/12.jpg',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/13.jpg',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/14.jpg',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/15.jpg',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/16.jpg',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/17.png',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/18.png',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/19.png',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/20.png',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/21.png',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/22.png',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/23.png',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/24.png',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/25.png',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/26.png',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/27.png',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/28.png',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/29.png',
+  'https://raw.githubusercontent.com/1143520/picture-api/main/public/30.jpeg'
+];
 
 // 模式控制：1 = 顺序循环，2 = 不重复随机图片
 const MODE = 2;
@@ -25,19 +45,19 @@ let currentIndex = 0;
 // 获取下一个顺序索引（模式1）
 function getNextSequentialIndex() {
   const index = currentIndex;
-  currentIndex = (currentIndex + 1) % IMAGES.length;
+  currentIndex = (currentIndex + 1) % IMAGES_LIST.length;
   return index;
 }
 
 // 获取一个不在最近显示列表中的随机索引（模式2）
 function getUniqueRandomIndex() {
-  let availableIndices = Array.from({ length: IMAGES.length }, (_, i) => i)
+  let availableIndices = Array.from({ length: IMAGES_LIST.length }, (_, i) => i)
     .filter(i => !recentIndices.includes(i));
   
   // 如果所有图片都在最近列表中，清空列表重新开始
   if (availableIndices.length === 0) {
     recentIndices.length = 0;
-    availableIndices = Array.from({ length: IMAGES.length }, (_, i) => i);
+    availableIndices = Array.from({ length: IMAGES_LIST.length }, (_, i) => i);
   }
   
   const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
@@ -53,22 +73,6 @@ function getUniqueRandomIndex() {
 
 export default {
   async fetch(request, env, ctx) {
-    // 从环境变量获取图片列表
-    const IMAGES = getImagesFromEnv(env);
-    
-    // 如果没有配置图片，返回错误
-    if (IMAGES.length === 0) {
-      return new Response(JSON.stringify({
-        error: 'No images configured'
-      }), {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        }
-      });
-    }
-
     // 允许跨域访问
     const headers = {
       'Access-Control-Allow-Origin': '*',
@@ -84,7 +88,7 @@ export default {
     try {
       // 根据模式选择图片索引
       const index = MODE === 1 ? getNextSequentialIndex() : getUniqueRandomIndex();
-      const imageUrl = IMAGES[index];
+      const imageUrl = IMAGES_LIST[index];
 
       // 获取图片内容
       const response = await fetch(imageUrl);
