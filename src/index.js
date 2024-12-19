@@ -72,7 +72,7 @@ function getUniqueRandomIndex() {
 }
 
 export default {
-  async fetch(request, env, ctx) {
+  async fetch(request) {
     // 允许跨域访问
     const headers = {
       'Access-Control-Allow-Origin': '*',
