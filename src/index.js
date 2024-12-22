@@ -1,35 +1,27 @@
 // 直接配置图片URL列表
 const IMAGES_LIST = [
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/01.jpg',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/02.jpg',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/03.jpg',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/04.jpg',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/05.jpg',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/06.jpg',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/07.jpg',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/08.jpg',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/09.jpg',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/10.jpg',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/11.jpg',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/12.jpg',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/13.jpg',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/14.jpg',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/15.jpg',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/16.jpg',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/17.png',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/18.png',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/19.png',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/20.png',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/21.png',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/22.png',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/23.png',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/24.png',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/25.png',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/26.png',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/27.png',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/28.png',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/29.png',
-  'https://raw.githubusercontent.com/1143520/picture-api/main/public/30.jpeg'
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/05562425_09875100.png',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/19005694_28971800.jpg',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/82222314_21074700.jpg',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/98637249_45775600.jpg',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/17803376_86810000.jpg',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/95731313_19188700.png',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/87100744_47665500.jpg',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/80202909_84836000.jpg',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/89899093_97901200.jpg',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/53249802_01879700.png',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/26348784_29434800.jpg',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/82768294_58041000.jpg',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/59432563_31095500.png',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/51311478_92923900.png',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/89863621_85440500.png',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/62710053_37591700.png',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/65430156_75759800.png',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/03735455_60251600.png',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/15486861_39066400.png',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/96565314_59681200.png',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/41375373_44666000.png',
+  'https://cdn.h5wan.4399sj.com/public/images/report/20241221/11695433_69333900.png'
 ];
 
 // 模式控制：1 = 顺序循环，2 = 不重复随机图片
@@ -114,7 +106,7 @@ export default {
           ...headers,
           'Content-Type': contentType || 'image/jpeg',
           'Cache-Control': 'public, max-age=8640000', // 缓存24小时
-          'ETag': `"${index}"`, // 添加 ETag 用于缓存验证
+          'ETag': `"${index}"`, // ���加 ETag 用于缓存验证
           'Vary': 'Origin, Accept', // 添加 Vary 头部
           'Content-Disposition': 'inline',
           'Content-Security-Policy': "img-src 'self' https: data:;",
