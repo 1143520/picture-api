@@ -106,7 +106,7 @@ export default {
           ...headers,
           'Content-Type': contentType || 'image/jpeg',
           'Cache-Control': 'public, max-age=8640000', // 缓存24小时
-          'ETag': `"${index}"`, // ���加 ETag 用于缓存验证
+          'ETag': `"${index}"`, // 添加 ETag 用于缓存验证
           'Vary': 'Origin, Accept', // 添加 Vary 头部
           'Content-Disposition': 'inline',
           'Content-Security-Policy': "img-src 'self' https: data:;",
